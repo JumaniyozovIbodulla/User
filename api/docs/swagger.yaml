@@ -1,0 +1,79 @@
+definitions:
+  models.AddUser:
+    properties:
+      birthday:
+        type: string
+      created_by:
+        type: string
+      full_name:
+        type: string
+      location:
+        $ref: '#/definitions/models.location'
+      nick_name:
+        type: string
+      photo:
+        type: string
+    type: object
+  models.Response:
+    properties:
+      data: {}
+      description:
+        type: string
+      statusCode:
+        type: integer
+    type: object
+  models.location:
+    properties:
+      lat:
+        type: number
+      long:
+        type: number
+    type: object
+info:
+  contact: {}
+  description: This is a sample server celler server.
+  title: Swagger Example API
+  version: "1.0"
+paths:
+  /api/user:
+    post:
+      consumes:
+      - application/json
+      description: This api create a user and returns its id
+      parameters:
+      - description: user
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/models.AddUser'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: create a user
+      tags:
+      - user
+securityDefinitions:
+  ApiKeyAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
