@@ -150,7 +150,7 @@ func (u *userRepo) Delete(ctx context.Context, user models.DeleteUser) error {
 func (u *userRepo) DeleteMany(ctx context.Context, users models.DeleteUsers) error {
 
 	query := `
-	DELETE FROM 
+	UPDATE 
 		users 
 	SET
 		deleted_at = NOW(),
