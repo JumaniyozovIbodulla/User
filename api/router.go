@@ -25,7 +25,14 @@ func New(store storage.IStorage, service service.IServiceManager, log logger.ILo
 	r := gin.Default()
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
-	r.POST("/api/user", h.CreateUser)
+	r.POST("/api/v1/user", h.CreateUser)
+	r.POST("/api/v1/users", h.CreateMany)
+	r.PUT("/api/v1/user", h.Update)
+	r.PUT("/api/v1/users", h.UpdateMany)
+	r.DELETE("/api/v1/user", h.Delete)
+	r.DELETE("/api/v1/users", h.DeleteMany)
+	r.GET("/api/v1/user/:id", h.GetById)
+	r.GET("/api/v1/users", h.GetList)
 
 	return r
 }

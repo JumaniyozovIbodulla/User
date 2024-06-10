@@ -14,6 +14,27 @@ definitions:
       photo:
         type: string
     type: object
+  models.AddUsers:
+    properties:
+      users:
+        items:
+          $ref: '#/definitions/models.AddUser'
+        type: array
+    type: object
+  models.DeleteUser:
+    properties:
+      deleted_by:
+        type: string
+      id:
+        type: integer
+    type: object
+  models.DeleteUsers:
+    properties:
+      users:
+        items:
+          $ref: '#/definitions/models.DeleteUser'
+        type: array
+    type: object
   models.Response:
     properties:
       data: {}
@@ -21,6 +42,30 @@ definitions:
         type: string
       statusCode:
         type: integer
+    type: object
+  models.UpdateUser:
+    properties:
+      birthday:
+        type: string
+      full_name:
+        type: string
+      id:
+        type: integer
+      location:
+        $ref: '#/definitions/models.location'
+      nick_name:
+        type: string
+      photo:
+        type: string
+      updated_by:
+        type: string
+    type: object
+  models.UpdateUsers:
+    properties:
+      users:
+        items:
+          $ref: '#/definitions/models.UpdateUser'
+        type: array
     type: object
   models.location:
     properties:
@@ -35,7 +80,7 @@ info:
   title: Swagger Example API
   version: "1.0"
 paths:
-  /api/user:
+  /api/v1/user:
     post:
       consumes:
       - application/json
@@ -68,7 +113,260 @@ paths:
             $ref: '#/definitions/models.Response'
       security:
       - ApiKeyAuth: []
-      summary: create a user
+      summary: create an user
+      tags:
+      - user
+    put:
+      consumes:
+      - application/json
+      description: This api update an user
+      parameters:
+      - description: user
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/models.UpdateUser'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: update an user
+      tags:
+      - user
+  /api/v1/user/:
+    delete:
+      consumes:
+      - application/json
+      description: This api delete a user
+      parameters:
+      - description: user
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/models.DeleteUser'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: delete an user
+      tags:
+      - user
+  /api/v1/user/{id}:
+    get:
+      consumes:
+      - application/json
+      description: This api get an user
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: get an user
+      tags:
+      - user
+  /api/v1/users:
+    delete:
+      consumes:
+      - application/json
+      description: This api delete users and returns error or null
+      parameters:
+      - description: user
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/models.DeleteUsers'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: delete users
+      tags:
+      - user
+    get:
+      consumes:
+      - application/json
+      description: This api get all avtive users
+      parameters:
+      - description: search
+        in: query
+        name: search
+        type: string
+      - description: page
+        in: query
+        name: page
+        type: integer
+      - description: limit
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: get  users
+      tags:
+      - user
+    post:
+      consumes:
+      - application/json
+      description: This api create users and returns error or null
+      parameters:
+      - description: user
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/models.AddUsers'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: create users
+      tags:
+      - user
+    put:
+      consumes:
+      - application/json
+      description: This api update users
+      parameters:
+      - description: user
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/models.UpdateUsers'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: update users
       tags:
       - user
 securityDefinitions:

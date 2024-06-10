@@ -8,7 +8,7 @@ type location struct {
 type User struct {
 	Id        int64    `json:"id"`
 	FullName  string   `json:"full_name"`
-	NickName  string   `json:"nick_name"`
+	NickName  string   `json:"nick_name,omitempty"`
 	Photo     string   `json:"photo"`
 	Birthday  string   `json:"birthday"`
 	Location  location `json:"location"`
@@ -20,21 +20,48 @@ type User struct {
 	DeletedBy string   `json:"deleted_by"`
 }
 
-type GetUser struct {
+type UpdateUser struct {
 	Id        int64    `json:"id"`
 	FullName  string   `json:"full_name"`
-	NickName  string   `json:"nick_name"`
+	NickName  string   `json:"nick_name,omitempty"`
 	Photo     string   `json:"photo"`
+	Birthday  string   `json:"birthday"`
+	Location  location `json:"location"`
+	UpdatedBy string   `json:"updated_by"`
+}
+
+type GetUser struct {
+	FullName  string   `json:"full_name"`
+	NickName  string   `json:"nick_name,omitempty"`
+	Photo     string   `json:"photo,omitempty"`
 	Birthday  string   `json:"birthday"`
 	Location  location `json:"location"`
 	CreatedAt string   `json:"created_at"`
 	DeletedAt string   `json:"deleted_at"`
 	UpdatedAt string   `json:"updated_at"`
+	CreatedBy string   `json:"created_by"`
+	UpdatedBy string   `json:"updated_by"`
+	DeletedBy string   `json:"deleted_by"`
+}
+
+type UserList struct {
+	FullName  string   `json:"full_name"`
+	NickName  string   `json:"nick_name,omitempty"`
+	Photo     string   `json:"photo"`
+	Birthday  string   `json:"birthday"`
+	Location  location `json:"location"`
+	CreatedAt string   `json:"created_at,omitempty"`
+	UpdatedAt string   `json:"updated_at,omitempty"`
+}
+
+type DeleteUser struct {
+	Id        int64  `json:"id"`
+	DeletedBy string `json:"deleted_by"`
 }
 
 type AddUser struct {
 	FullName  string   `json:"full_name"`
-	NickName  string   `json:"nick_name"`
+	NickName  string   `json:"nick_name,omitempty"`
 	Photo     string   `json:"photo"`
 	Birthday  string   `json:"birthday"`
 	Location  location `json:"location"`
@@ -46,11 +73,11 @@ type AddUsers struct {
 }
 
 type UpdateUsers struct {
-	Users []User
+	Users []UpdateUser
 }
 
 type DeleteUsers struct {
-	Ids []int64
+	Users []DeleteUser
 }
 
 type GetListRequest struct {
@@ -60,8 +87,8 @@ type GetListRequest struct {
 }
 
 type GetListResponse struct {
-	Users []GetUser `json:"users"`
-	Count int64     `json:"count"`
+	Users []UserList `json:"users"`
+	Count int64      `json:"count"`
 }
 
 /*
