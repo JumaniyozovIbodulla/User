@@ -81,20 +81,12 @@ type DeleteUsers struct {
 }
 
 type GetListRequest struct {
-	Search string `json:"search"`
-	Page   uint64 `json:"page"`
-	Limit  uint64 `json:"limit"`
+	Sort  []string `json:"sort"`
+	Page  uint64   `json:"page"`
+	Limit uint64   `json:"limit"`
 }
 
 type GetListResponse struct {
 	Users []UserList `json:"users"`
 	Count int64      `json:"count"`
 }
-
-/*
-Get User List . you can add user fields that omitted fields to users list for response  .
-
-ex::: created_at,updated_at .  GET  api/?fields=created_at,updated_at
-
-Sort User List . GET /api/sort?full_name:asc,id:desc
-*/

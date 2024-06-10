@@ -232,7 +232,7 @@ func (h Handler) GetById(c *gin.Context) {
 // @Tags		user
 // @Accept		json
 // @Produce		json
-// @Param   	search query string false "search"
+// @Param   	sort query string false "sort"
 // @Param    	page query int false "page"
 // @Param    	limit query int false "limit"
 // @Success		200  {object}  models.Response
@@ -240,7 +240,8 @@ func (h Handler) GetById(c *gin.Context) {
 // @Failure		404  {object}  models.Response
 // @Failure		500  {object}  models.Response
 func (h Handler) GetList(c *gin.Context) {
-	search := c.Query("search")
+	sort := c.Query("sort")
+	sortClauses := ParseSortParam(sort)
 
 	page, err := ParsePageQueryParam(c)
 	if err != nil {
@@ -254,9 +255,9 @@ func (h Handler) GetList(c *gin.Context) {
 	}
 
 	resp, err := h.Service.User().GetList(c.Request.Context(), models.GetListRequest{
-		Search: search,
-		Page:   page,
-		Limit:  limit,
+		Sort:  sortClauses,
+		Page:  page,
+		Limit: limit,
 	})
 	if err != nil {
 		handleResponse(c, h.Log, "error while getting all active users", http.StatusInternalServerError, err.Error())

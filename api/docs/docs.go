@@ -260,8 +260,8 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "search",
-                        "name": "search",
+                        "description": "sort",
+                        "name": "sort",
                         "in": "query"
                     },
                     {

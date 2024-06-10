@@ -2,6 +2,7 @@ package handler
 
 import (
 	"strconv"
+	"strings"
 	"user/api/models"
 	"user/config"
 	"user/pkg/logger"
@@ -76,4 +77,26 @@ func ParseLimitQueryParam(c *gin.Context) (uint64, error) {
 		return 10, nil
 	}
 	return limit, nil
+}
+
+func ParseSortParam(sortParam string) []string {
+	if sortParam == "" {
+		return nil
+	}
+
+	sortFields := strings.Split(sortParam, ",")
+	var sortClauses []string
+	for _, field := range sortFields {
+		parts := strings.Split(field, ":")
+		if len(parts) != 2 {
+			continue
+		}
+		column := parts[0]
+		order := strings.ToUpper(parts[1])
+		if order != "ASC" && order != "DESC" {
+			continue
+		}
+		sortClauses = append(sortClauses, column+" "+order)
+	}
+	return sortClauses
 }

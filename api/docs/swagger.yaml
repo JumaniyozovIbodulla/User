@@ -263,9 +263,9 @@ paths:
       - application/json
       description: This api get all avtive users
       parameters:
-      - description: search
+      - description: sort
         in: query
-        name: search
+        name: sort
         type: string
       - description: page
         in: query

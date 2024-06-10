@@ -3,6 +3,7 @@ package postgres
 import (
 	"context"
 	"database/sql"
+	"strings"
 	"user/api/models"
 	"user/pkg"
 
@@ -223,13 +224,12 @@ func (u *userRepo) GetById(ctx context.Context, id int64) (models.GetUser, error
 func (u *userRepo) GetList(ctx context.Context, req models.GetListRequest) (models.GetListResponse, error) {
 	resp := models.GetListResponse{}
 
-	filter := ""
+	orderBy := ""
 	offset := (req.Page - 1) * req.Limit
 
-	if req.Search != "" {
-		filter = ` AND full_name ILIKE '%` + req.Search + `%' `
+	if len(req.Sort) > 0 {
+		orderBy += ` ORDER BY ` + strings.Join(req.Sort, ", ") + ` `
 	}
-
 	query := `
 	SELECT
 		full_name,
@@ -242,14 +242,14 @@ func (u *userRepo) GetList(ctx context.Context, req models.GetListRequest) (mode
 		TO_CHAR(updated_at, 'YYYY-MM-DD HH24:MI:SS') AS updated_at
 	FROM
 		users
-	WHERE deleted_at IS NULL AND TRUE ` + filter + `
+	WHERE deleted_at IS NULL 
+	` + orderBy + `
 	OFFSET
 		$1
 	LIMIT
 		$2;`
 
 	rows, err := u.db.Query(ctx, query, offset, req.Limit)
-
 	if err != nil {
 		return resp, err
 	}
@@ -282,7 +282,19 @@ func (u *userRepo) GetList(ctx context.Context, req models.GetListRequest) (mode
 		resp.Users = append(resp.Users, user)
 	}
 
-	row := u.db.QueryRow(ctx, `SELECT COUNT(*) FROM users WHERE deleted_at IS NULL AND TRUE `+filter+`;`)
+	defer rows.Close()
+
+	query = `
+	WITH ordered_users AS (
+		SELECT full_name
+		FROM users
+		WHERE deleted_at IS NULL
+		` + orderBy + `
+	)
+	SELECT COUNT(*)
+	FROM ordered_users;`
+
+	row := u.db.QueryRow(ctx, query)
 
 	err = row.Scan(&resp.Count)
 	if err != nil {
