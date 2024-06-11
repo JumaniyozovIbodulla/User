@@ -26,10 +26,10 @@ func Load() Config {
 
 	cfg.PostgresHost = cast.ToString(getOrReturnDefault("POSTGRES_HOST", "localhost"))
 	cfg.PostgresPort = cast.ToInt(getOrReturnDefault("POSTGRES_PORT", 5432))
-	cfg.PostgresDatabase = cast.ToString(getOrReturnDefault("POSTGRES_DATABASE", ""))
-	cfg.PostgresUser = cast.ToString(getOrReturnDefault("POSTGRES_USER", ""))
-	cfg.PostgresPassword = cast.ToString(getOrReturnDefault("POSTGRES_PASSWORD", ""))
-	cfg.ServiceName = cast.ToString(getOrReturnDefault("SERVICE_NAME", ""))
+	cfg.PostgresDatabase = cast.ToString(getOrReturnDefault("POSTGRES_DATABASE", "user_test"))
+	cfg.PostgresUser = cast.ToString(getOrReturnDefault("POSTGRES_USER", "golang"))
+	cfg.PostgresPassword = cast.ToString(getOrReturnDefault("POSTGRES_PASSWORD", "golang"))
+	cfg.ServiceName = cast.ToString(getOrReturnDefault("SERVICE_NAME", "user"))
 
 	return cfg
 }

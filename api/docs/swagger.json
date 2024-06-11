@@ -3,9 +3,19 @@
     "info": {
         "description": "This is a sample server celler server.",
         "title": "Swagger Example API",
-        "contact": {},
+        "termsOfService": "http://swagger.io/terms/",
+        "contact": {
+            "name": "API Support",
+            "url": "http://www.swagger.io/support",
+            "email": "support@swagger.io"
+        },
+        "license": {
+            "name": "Apache 2.0",
+            "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+        },
         "version": "1.0"
     },
+    "host": "localhost:8080",
     "paths": {
         "/api/v1/user": {
             "put": {
@@ -477,7 +487,7 @@
                     "type": "string"
                 },
                 "location": {
-                    "$ref": "#/definitions/models.location"
+                    "$ref": "#/definitions/models.Tolocation"
                 },
                 "nick_name": {
                     "type": "string"
@@ -532,6 +542,17 @@
                 }
             }
         },
+        "models.Tolocation": {
+            "type": "object",
+            "properties": {
+                "lat": {
+                    "type": "number"
+                },
+                "long": {
+                    "type": "number"
+                }
+            }
+        },
         "models.UpdateUser": {
             "type": "object",
             "properties": {
@@ -545,7 +566,7 @@
                     "type": "integer"
                 },
                 "location": {
-                    "$ref": "#/definitions/models.location"
+                    "$ref": "#/definitions/models.Tolocation"
                 },
                 "nick_name": {
                     "type": "string"
@@ -566,17 +587,6 @@
                     "items": {
                         "$ref": "#/definitions/models.UpdateUser"
                     }
-                }
-            }
-        },
-        "models.location": {
-            "type": "object",
-            "properties": {
-                "lat": {
-                    "type": "number"
-                },
-                "long": {
-                    "type": "number"
                 }
             }
         }

@@ -9,7 +9,16 @@ const docTemplate = `{
     "info": {
         "description": "{{escape .Description}}",
         "title": "{{.Title}}",
-        "contact": {},
+        "termsOfService": "http://swagger.io/terms/",
+        "contact": {
+            "name": "API Support",
+            "url": "http://www.swagger.io/support",
+            "email": "support@swagger.io"
+        },
+        "license": {
+            "name": "Apache 2.0",
+            "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+        },
         "version": "{{.Version}}"
     },
     "host": "{{.Host}}",
@@ -485,7 +494,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "location": {
-                    "$ref": "#/definitions/models.location"
+                    "$ref": "#/definitions/models.Tolocation"
                 },
                 "nick_name": {
                     "type": "string"
@@ -540,6 +549,17 @@ const docTemplate = `{
                 }
             }
         },
+        "models.Tolocation": {
+            "type": "object",
+            "properties": {
+                "lat": {
+                    "type": "number"
+                },
+                "long": {
+                    "type": "number"
+                }
+            }
+        },
         "models.UpdateUser": {
             "type": "object",
             "properties": {
@@ -553,7 +573,7 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "location": {
-                    "$ref": "#/definitions/models.location"
+                    "$ref": "#/definitions/models.Tolocation"
                 },
                 "nick_name": {
                     "type": "string"
@@ -576,17 +596,6 @@ const docTemplate = `{
                     }
                 }
             }
-        },
-        "models.location": {
-            "type": "object",
-            "properties": {
-                "lat": {
-                    "type": "number"
-                },
-                "long": {
-                    "type": "number"
-                }
-            }
         }
     },
     "securityDefinitions": {
@@ -601,7 +610,7 @@ const docTemplate = `{
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
-	Host:             "",
+	Host:             "localhost:8080",
 	BasePath:         "",
 	Schemes:          []string{},
 	Title:            "Swagger Example API",

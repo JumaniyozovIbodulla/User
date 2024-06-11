@@ -230,6 +230,7 @@ func (u *userRepo) GetList(ctx context.Context, req models.GetListRequest) (mode
 	if len(req.Sort) > 0 {
 		orderBy += ` ORDER BY ` + strings.Join(req.Sort, ", ") + ` `
 	}
+
 	query := `
 	SELECT
 		full_name,
@@ -284,17 +285,7 @@ func (u *userRepo) GetList(ctx context.Context, req models.GetListRequest) (mode
 
 	defer rows.Close()
 
-	query = `
-	WITH ordered_users AS (
-		SELECT full_name
-		FROM users
-		WHERE deleted_at IS NULL
-		` + orderBy + `
-	)
-	SELECT COUNT(*)
-	FROM ordered_users;`
-
-	row := u.db.QueryRow(ctx, query)
+	row := u.db.QueryRow(ctx, `SELECT COUNT(*) FROM users WHERE deleted_at IS NULL;`)
 
 	err = row.Scan(&resp.Count)
 	if err != nil {

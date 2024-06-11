@@ -8,7 +8,7 @@ definitions:
       full_name:
         type: string
       location:
-        $ref: '#/definitions/models.location'
+        $ref: '#/definitions/models.Tolocation'
       nick_name:
         type: string
       photo:
@@ -43,6 +43,13 @@ definitions:
       statusCode:
         type: integer
     type: object
+  models.Tolocation:
+    properties:
+      lat:
+        type: number
+      long:
+        type: number
+    type: object
   models.UpdateUser:
     properties:
       birthday:
@@ -52,7 +59,7 @@ definitions:
       id:
         type: integer
       location:
-        $ref: '#/definitions/models.location'
+        $ref: '#/definitions/models.Tolocation'
       nick_name:
         type: string
       photo:
@@ -67,16 +74,17 @@ definitions:
           $ref: '#/definitions/models.UpdateUser'
         type: array
     type: object
-  models.location:
-    properties:
-      lat:
-        type: number
-      long:
-        type: number
-    type: object
+host: localhost:8080
 info:
-  contact: {}
+  contact:
+    email: support@swagger.io
+    name: API Support
+    url: http://www.swagger.io/support
   description: This is a sample server celler server.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
   title: Swagger Example API
   version: "1.0"
 paths:
