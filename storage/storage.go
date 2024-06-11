@@ -16,7 +16,7 @@ type UserStorage interface {
 	Update(ctx context.Context, user models.UpdateUser) (int64, error)
 	UpdateMany(ctx context.Context, users models.UpdateUsers) error
 	Delete(ctx context.Context, user models.DeleteUser) error
-	DeleteMany(ctx context.Context, ids models.DeleteUsers) error
+	DeleteMany(ctx context.Context, users models.DeleteUsers) error
 	GetById(ctx context.Context, id int64) (models.GetUser, error)
 	GetList(ctx context.Context, req models.GetListRequest) (models.GetListResponse, error)
 }

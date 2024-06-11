@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestCreateUser(t *testing.T) {
+func TestCreate(t *testing.T) {
 	userRepo := NewUser(db)
 
 	reqUser := models.AddUser{
@@ -43,7 +43,7 @@ func TestCreateUser(t *testing.T) {
 }
 
 
-func TestCreateUserMany(t *testing.T) {
+func TestCreateMany(t *testing.T) {
 	userRepo := NewUser(db)
 	resp, err := userRepo.GetList(context.Background(), models.GetListRequest{})
 	var length int64
@@ -90,72 +90,141 @@ func TestCreateUserMany(t *testing.T) {
 	} 
 }
 
-// func TestUpdateStudent(t *testing.T) {
-// 	studentRepo := NewStudent(db)
+func TestUpdate(t *testing.T) {
+	userRepo := NewUser(db)
 
-// 	reqStudent := models.Student{
-// 		Id:         "3eccd9c5-c3ed-460d-9b2e-e10b600c3a0e",
-// 		FirstName:  faker.Name(),
-// 		LastName:   faker.Word(),
-// 		Age:        12,
-// 		ExternalId: faker.ID,
-// 		Phone:      faker.Phonenumber(),
-// 		Email:      faker.Email(),
-// 	}
+	reqUser := models.UpdateUser{
+		Id:         20,
+		FullName:  faker.Name(),
+		NickName:   faker.Name(),
+		Photo:      faker.Word(),
+		Birthday: "2000-10-12",
+		Location:      models.Tolocation{
+			Latitude:  faker.Latitude(),
+			Longitude: faker.Longitude(),
+		},
+		UpdatedBy:      faker.Name(),
+	}
 
-// 	id, err := studentRepo.Update(context.Background(), reqStudent)
-// 	if assert.NoError(t, err) {
-// 		createdStudent, err := studentRepo.GetStudent(context.Background(), id)
-// 		if assert.NoError(t, err) {
-// 			assert.Equal(t, reqStudent.FirstName, createdStudent.FirstName)
-// 			assert.Equal(t, reqStudent.Age, createdStudent.Age)
-// 			assert.Equal(t, reqStudent.LastName, createdStudent.LastName)
-// 		} else {
-// 			return
-// 		}
-// 	}
-// }
+	id, err := userRepo.Update(context.Background(), reqUser)
+	if assert.NoError(t, err) {
+		updatedUser, err := userRepo.GetById(context.Background(), id)
+		if assert.NoError(t, err) {
+			assert.Equal(t, reqUser.FullName, updatedUser.FullName)
+			assert.Equal(t, reqUser.NickName, updatedUser.NickName)
+			assert.Equal(t, reqUser.Photo, updatedUser.Photo)
+			assert.Equal(t, reqUser.Birthday, updatedUser.Birthday)
+			assert.Equal(t, reqUser.Location, updatedUser.Location)
+			assert.Equal(t, reqUser.UpdatedBy, updatedUser.UpdatedBy)
+		} else {
+			return
+		}
+	}
+}
 
-// func TestDeleteStudent(t *testing.T) {
-// 	studentRepo := NewStudent(db)
 
-// 	reqStudent := models.AddStudent{
-// 		FirstName: faker.Name(),
-// 		Age:       10,
-// 		LastName:  faker.Word(),
-// 	}
+func TestUpdateMany(t *testing.T) {
+	userRepo := NewUser(db)
 
-// 	id, err := studentRepo.Create(context.Background(), reqStudent)
-// 	if assert.NoError(t, err) {
-// 		err := studentRepo.Delete(context.Background(), id)
-// 		if assert.NoError(t, err) {
-// 			return
-// 		}
-// 	}
-// }
+	reqUser := models.UpdateUsers{
+		Users: []models.UpdateUser{
+			{
+				Id:         20,
+				FullName:  faker.Name(),
+				NickName:   faker.Name(),
+				Photo:      faker.Word(),
+				Birthday: "2000-11-12",
+				Location:      models.Tolocation{
+					Latitude:  faker.Latitude(),
+					Longitude: faker.Longitude(),
+				},
+				UpdatedBy:      faker.Name(),
+			},
+			{
+				Id:         21,
+				FullName:  faker.Name(),
+				NickName:   faker.Name(),
+				Photo:      faker.Word(),
+				Birthday: "2000-10-12",
+				Location:      models.Tolocation{
+					Latitude:  faker.Latitude(),
+					Longitude: faker.Longitude(),
+				},
+				UpdatedBy:      faker.Name(),
+			},
+		},
+	}
 
-// func TestGetAllStudent(t *testing.T) {
-// 	studentRepo := NewStudent(db)
-// 	reqStudent := models.AddStudent{
-// 		FirstName: faker.Name(),
-// 		Age:       10,
-// 		LastName:  faker.Word(),
-// 	}
+	err := userRepo.UpdateMany(context.Background(), reqUser)
+	if assert.NoError(t, err) {
+		return
+	}
+}
 
-// 	response, err := studentRepo.GetAll(context.Background(), models.GetAllStudentsRequest{})
-// 	if assert.NoError(t, err) {
-// 		count := response.Count
+func TestDelete(t *testing.T) {
+	userRepo := NewUser(db)
 
-// 		_, err := studentRepo.Create(context.Background(), reqStudent)
+	reqUser := models.AddUser{
+		FullName: faker.Name(),
+		NickName: faker.Name(),
+		Photo:  faker.Name(),
+		Birthday: "2001-01-12",
+		Location: models.Tolocation{
+			Latitude:  faker.Latitude(),
+			Longitude: faker.Longitude(),
+		},
+		CreatedBy:      faker.Name(),
+	}
 
-// 		if assert.NoError(t, err) {
-// 			testResponse, err := studentRepo.GetAll(context.Background(), models.GetAllStudentsRequest{})
-// 			if assert.NoError(t, err) {
-// 				testCount := testResponse.Count
-// 				assert.Equal(t, count+1, testCount)
-// 			} else {
-// 				return
-// 			}
-// 		}
-// 	}
-// }
+	id, err := userRepo.Create(context.Background(), reqUser)
+	if assert.NoError(t, err) {
+		err := userRepo.Delete(context.Background(), models.DeleteUser{
+			Id: id,
+			DeletedBy: "me",
+		})
+		if assert.NoError(t, err) {
+			return
+		}
+	}
+}
+
+
+func TestGetList(t *testing.T) {
+	userRepo := NewUser(db)
+
+	reqUser := models.AddUser{
+		FullName: faker.Name(),
+		NickName: faker.Name(),
+		Photo:    faker.URL(),
+		Birthday: "2000-10-10",
+		Location: models.Tolocation{
+			Latitude:  faker.Latitude(),
+			Longitude: faker.Longitude(),
+		},
+
+		CreatedBy: faker.Name(),
+	}
+
+	response, err := userRepo.GetList(context.Background(), models.GetListRequest{
+		Page: 1,
+		Limit: 10,
+	})
+	if assert.NoError(t, err) {
+		count := response.Count
+
+		_, err := userRepo.Create(context.Background(), reqUser)
+
+		if assert.NoError(t, err) {
+			testResponse, err := userRepo.GetList(context.Background(), models.GetListRequest{
+				Page: 1,
+				Limit: 10,
+			})
+			if assert.NoError(t, err) {
+				testCount := testResponse.Count
+				assert.Equal(t, count+1, testCount)
+			} else {
+				return
+			}
+		}
+	}
+}

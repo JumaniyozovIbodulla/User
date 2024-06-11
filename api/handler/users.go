@@ -248,6 +248,7 @@ func (h Handler) GetList(c *gin.Context) {
 		handleResponse(c, h.Log, "error while parsing page", http.StatusBadRequest, err.Error())
 		return
 	}
+
 	limit, err := ParseLimitQueryParam(c)
 	if err != nil {
 		handleResponse(c, h.Log, "error while parsing limit", http.StatusBadRequest, err.Error())
