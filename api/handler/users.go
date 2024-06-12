@@ -5,6 +5,7 @@ import (
 	"strconv"
 	_ "user/api/docs"
 	"user/api/models"
+	"user/pkg"
 
 	"github.com/gin-gonic/gin"
 )
@@ -30,6 +31,11 @@ func (h Handler) CreateUser(c *gin.Context) {
 		return
 	}
 
+	if err := pkg.ValidateBirthday(user.Birthday); err != nil {
+		handleResponse(c, h.Log, "error while validating user birthday: ", http.StatusBadRequest, err.Error())
+		return
+	}
+
 	id, err := h.Service.User().Create(c.Request.Context(), user)
 	if err != nil {
 		handleResponse(c, h.Log, "error while creating user", http.StatusBadRequest, err.Error())
@@ -38,7 +44,7 @@ func (h Handler) CreateUser(c *gin.Context) {
 	handleResponse(c, h.Log, "Created successfully", http.StatusOK, id)
 }
 
-// CreateUsers godoc
+// CreateMany godoc
 // @Security ApiKeyAuth
 // @Router		/api/v1/users [POST]
 // @Summary		create users
@@ -56,6 +62,11 @@ func (h Handler) CreateMany(c *gin.Context) {
 
 	if err := c.ShouldBindJSON(&users); err != nil {
 		handleResponse(c, h.Log, "error while reading request body", http.StatusBadRequest, err.Error())
+		return
+	}
+
+	if err := pkg.ValidateManyBirthday(users); err != nil {
+		handleResponse(c, h.Log, "error while validating users birthday: ", http.StatusBadRequest, err.Error())
 		return
 	}
 
@@ -89,6 +100,11 @@ func (h Handler) Update(c *gin.Context) {
 		return
 	}
 
+	if err := pkg.ValidateBirthday(user.Birthday); err != nil {
+		handleResponse(c, h.Log, "error while validating user birthday: ", http.StatusBadRequest, err.Error())
+		return
+	}
+
 	id, err := h.Service.User().Update(c.Request.Context(), user)
 
 	if err != nil {
@@ -117,6 +133,11 @@ func (h Handler) UpdateMany(c *gin.Context) {
 
 	if err := c.ShouldBindJSON(&users); err != nil {
 		handleResponse(c, h.Log, "error while reading request body", http.StatusBadRequest, err.Error())
+		return
+	}
+
+	if err := pkg.ValidateUpdateManyBirthday(users); err != nil {
+		handleResponse(c, h.Log, "error while validating users birthday: ", http.StatusBadRequest, err.Error())
 		return
 	}
 
