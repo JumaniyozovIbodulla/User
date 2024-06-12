@@ -1,0 +1,448 @@
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<title>postgres: Go Coverage Report</title>
+		<style>
+			body {
+				background: black;
+				color: rgb(80, 80, 80);
+			}
+			body, pre, #legend span {
+				font-family: Menlo, monospace;
+				font-weight: bold;
+			}
+			#topbar {
+				background: black;
+				position: fixed;
+				top: 0; left: 0; right: 0;
+				height: 42px;
+				border-bottom: 1px solid rgb(80, 80, 80);
+			}
+			#content {
+				margin-top: 50px;
+			}
+			#nav, #legend {
+				float: left;
+				margin-left: 10px;
+			}
+			#legend {
+				margin-top: 12px;
+			}
+			#nav {
+				margin-top: 10px;
+			}
+			#legend span {
+				margin: 0 5px;
+			}
+			.cov0 { color: rgb(192, 0, 0) }
+.cov1 { color: rgb(128, 128, 128) }
+.cov2 { color: rgb(116, 140, 131) }
+.cov3 { color: rgb(104, 152, 134) }
+.cov4 { color: rgb(92, 164, 137) }
+.cov5 { color: rgb(80, 176, 140) }
+.cov6 { color: rgb(68, 188, 143) }
+.cov7 { color: rgb(56, 200, 146) }
+.cov8 { color: rgb(44, 212, 149) }
+.cov9 { color: rgb(32, 224, 152) }
+.cov10 { color: rgb(20, 236, 155) }
+
+		</style>
+	</head>
+	<body>
+		<div id="topbar">
+			<div id="nav">
+				<select id="files">
+				
+				<option value="file0">user/storage/postgres/postgres.go (0.0%)</option>
+				
+				<option value="file1">user/storage/postgres/user.go (84.7%)</option>
+				
+				</select>
+			</div>
+			<div id="legend">
+				<span>not tracked</span>
+			
+				<span class="cov0">not covered</span>
+				<span class="cov8">covered</span>
+			
+			</div>
+		</div>
+		<div id="content">
+		
+		<pre class="file" id="file0" style="display: none">package postgres
+
+import (
+        "context"
+        "fmt"
+        "time"
+        "user/config"
+        "user/storage"
+
+        "github.com/jackc/pgx/v5/pgxpool"
+        _ "github.com/lib/pq"
+)
+
+type Store struct {
+        Pool *pgxpool.Pool
+        cfg  config.Config
+}
+func New(ctx context.Context, cfg config.Config) (storage.IStorage, error) <span class="cov0" title="0">{
+        url := fmt.Sprintf(`host=%s port=%v user=%s password=%s database=%s sslmode=disable`,
+                cfg.PostgresHost, cfg.PostgresPort, cfg.PostgresUser, cfg.PostgresPassword, cfg.PostgresDatabase)
+
+        pgxPoolConfig, err := pgxpool.ParseConfig(url)
+
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+        <span class="cov0" title="0">pgxPoolConfig.MaxConns = 50
+        pgxPoolConfig.MaxConnLifetime = time.Hour
+
+        newPool, err := pgxpool.NewWithConfig(ctx, pgxPoolConfig)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+
+        <span class="cov0" title="0">return Store{
+                Pool: newPool,
+                cfg:  cfg,
+        }, nil</span>
+}
+func (s Store) CloseDB() <span class="cov0" title="0">{
+        s.Pool.Close()
+}</span>
+
+
+func (s Store) UserStorage() storage.UserStorage <span class="cov0" title="0">{
+        newUser := NewUser(s.Pool)
+        return &amp;newUser
+}</pre>
+		
+		<pre class="file" id="file1" style="display: none">package postgres
+
+import (
+        "context"
+        "database/sql"
+        "strings"
+        "user/api/models"
+        "user/pkg"
+
+        "github.com/jackc/pgx/v5/pgxpool"
+)
+
+type userRepo struct {
+        db *pgxpool.Pool
+}
+
+func NewUser(db *pgxpool.Pool) userRepo <span class="cov8" title="1">{
+        return userRepo{
+                db: db,
+        }
+}</span>
+
+func (u *userRepo) Create(ctx context.Context, user models.AddUser) (int64, error) <span class="cov8" title="1">{
+
+        var id int64
+
+        query := `
+        INSERT INTO users (
+                full_name, 
+                nick_name, 
+                photo, 
+                birthday, 
+                location, 
+                created_by
+        ) 
+        VALUES (
+                $1, 
+                $2, 
+                $3, 
+                $4, 
+                ST_SetSRID(ST_MakePoint($5, $6), 4326), 
+                $7) 
+        RETURNING id;`
+
+        row := u.db.QueryRow(ctx, query, user.FullName, user.NickName, user.Photo, user.Birthday, user.Location.Latitude, user.Location.Longitude, user.CreatedBy)
+
+        err := row.Scan(&amp;id)
+
+        if err != nil </span><span class="cov0" title="0">{
+                return 0, err
+        }</span>
+        <span class="cov8" title="1">return id, nil</span>
+}
+
+func (u *userRepo) CreateMany(ctx context.Context, users models.AddUsers) error <span class="cov8" title="1">{
+
+        query := `
+        INSERT INTO users (
+                full_name, 
+                nick_name,
+                photo,
+                birthday,
+                location,
+                created_by
+        ) 
+        VALUES (
+                $1, 
+                $2, 
+                $3, 
+                $4, 
+                ST_SetSRID(ST_MakePoint($5, $6), 4326), 
+                $7
+        );`
+
+        for i := 0; i &lt; len(users.Users); i++ </span><span class="cov8" title="1">{
+                _, err := u.db.Exec(ctx, query, users.Users[i].FullName, users.Users[i].NickName, users.Users[i].Photo, users.Users[i].Birthday, users.Users[i].Location.Latitude, users.Users[i].Location.Longitude, users.Users[i].CreatedBy)
+
+                if err != nil </span><span class="cov0" title="0">{
+                        return err
+                }</span>
+        }
+        <span class="cov8" title="1">return nil</span>
+}
+
+func (u *userRepo) Update(ctx context.Context, user models.UpdateUser) (int64, error) <span class="cov8" title="1">{
+        var id int64
+        row := u.db.QueryRow(ctx, `
+        UPDATE 
+                users
+        SET
+                full_name = $2, 
+                nick_name = $3, 
+                photo = $4, 
+                birthday = $5, 
+                location = ST_SetSRID(ST_MakePoint($6, $7), 4326),
+                updated_at = NOW(), 
+                updated_by = $8
+        WHERE 
+            id = $1
+        RETURNING id;`, user.Id, user.FullName, user.NickName, user.Photo, user.Birthday, user.Location.Latitude, user.Location.Longitude, user.UpdatedBy)
+
+        err := row.Scan(&amp;id)
+
+        if err != nil </span><span class="cov0" title="0">{
+                return 0, err
+        }</span>
+        <span class="cov8" title="1">return id, nil</span>
+}
+
+func (u *userRepo) UpdateMany(ctx context.Context, users models.UpdateUsers) error <span class="cov8" title="1">{
+        query := `
+        UPDATE 
+                users
+        SET
+                full_name = $2, 
+                nick_name = $3, 
+                photo = $4, 
+                birthday = $5, 
+                location = ST_SetSRID(ST_MakePoint($6, $7), 4326),
+                updated_at = NOW(), 
+                updated_by = $8
+        WHERE 
+            id = $1;`
+
+        for i := 0; i &lt; len(users.Users); i++ </span><span class="cov8" title="1">{
+                _, err := u.db.Exec(ctx, query, users.Users[i].Id, users.Users[i].FullName, users.Users[i].NickName, users.Users[i].Photo, users.Users[i].Birthday, users.Users[i].Location.Latitude, users.Users[i].Location.Longitude, users.Users[i].UpdatedBy)
+
+                if err != nil </span><span class="cov0" title="0">{
+                        return err
+                }</span>
+        }
+        <span class="cov8" title="1">return nil</span>
+}
+
+func (u *userRepo) Delete(ctx context.Context, user models.DeleteUser) error <span class="cov8" title="1">{
+        _, err := u.db.Exec(ctx, `
+        UPDATE 
+                users 
+        SET
+                deleted_at = NOW(),
+                deleted_by = $2
+        WHERE 
+                id = $1;`, user.Id, user.DeletedBy)
+
+        if err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+        <span class="cov8" title="1">return nil</span>
+}
+
+func (u *userRepo) DeleteMany(ctx context.Context, users models.DeleteUsers) error <span class="cov8" title="1">{
+
+        query := `
+        UPDATE 
+                users 
+        SET
+                deleted_at = NOW(),
+                deleted_by = $2
+        WHERE id = $1;`
+
+        for i := 0; i &lt; len(users.Users); i++ </span><span class="cov8" title="1">{
+                _, err := u.db.Exec(ctx, query, users.Users[i].Id, users.Users[i].DeletedBy)
+
+                if err != nil </span><span class="cov0" title="0">{
+                        return err
+                }</span>
+        }
+        <span class="cov8" title="1">return nil</span>
+}
+
+func (u *userRepo) GetById(ctx context.Context, id int64) (models.GetUser, error) <span class="cov8" title="1">{
+
+        var (
+                user                                                       models.GetUser
+                nickName, photo, birthday, deletedAt, updatedBy, deletedBy sql.NullString
+        )
+
+        row := u.db.QueryRow(ctx, `
+        SELECT
+                full_name,
+                nick_name,
+                photo,
+                TO_CHAR(birthday, 'YYYY-MM-DD') AS birthday,
+                ST_X(location) AS longitude, 
+                ST_Y(location) AS latitude, 
+                TO_CHAR(created_at, 'YYYY-MM-DD HH24:MI:SS') AS created_at,
+                TO_CHAR(deleted_at, 'YYYY-MM-DD HH24:MI:SS') AS deleted_at,
+                TO_CHAR(updated_at, 'YYYY-MM-DD HH24:MI:SS') AS updated_at,
+                created_by,
+                updated_by,
+                deleted_by
+        FROM
+                users
+        WHERE id = $1;`, id)
+
+        err := row.Scan(
+                &amp;user.FullName,
+                &amp;nickName,
+                &amp;photo,
+                &amp;birthday,
+                &amp;user.Location.Latitude,
+                &amp;user.Location.Longitude,
+                &amp;user.CreatedAt,
+                &amp;deletedAt,
+                &amp;user.UpdatedAt,
+                &amp;user.CreatedBy,
+                &amp;updatedBy,
+                &amp;deletedBy,
+        )
+
+        user.NickName = pkg.NullStringToString(nickName)
+        user.Photo = pkg.NullStringToString(photo)
+        user.Birthday = pkg.NullStringToString(birthday)
+        user.DeletedAt = pkg.NullStringToString(deletedAt)
+        user.UpdatedBy = pkg.NullStringToString(updatedBy)
+        user.DeletedBy = pkg.NullStringToString(deletedBy)
+
+        if err != nil </span><span class="cov0" title="0">{
+                return user, err
+        }</span>
+        <span class="cov8" title="1">return user, nil</span>
+}
+
+func (u *userRepo) GetList(ctx context.Context, req models.GetListRequest) (models.GetListResponse, error) <span class="cov8" title="1">{
+        resp := models.GetListResponse{}
+
+        orderBy := ""
+        offset := (req.Page - 1) * req.Limit
+
+        if len(req.Sort) &gt; 0 </span><span class="cov0" title="0">{
+                orderBy += ` ORDER BY ` + strings.Join(req.Sort, ", ") + ` `
+        }</span>
+
+        <span class="cov8" title="1">query := `
+        SELECT
+                full_name,
+                nick_name,
+                photo,
+                TO_CHAR(birthday, 'YYYY-MM-DD') AS birthday,
+                ST_X(location) AS longitude, 
+                ST_Y(location) AS latitude, 
+                TO_CHAR(created_at, 'YYYY-MM-DD HH24:MI:SS') AS created_at,
+                TO_CHAR(updated_at, 'YYYY-MM-DD HH24:MI:SS') AS updated_at
+        FROM
+                users
+        WHERE deleted_at IS NULL 
+        ` + orderBy + `
+        OFFSET
+                $1
+        LIMIT
+                $2;`
+
+        rows, err := u.db.Query(ctx, query, offset, req.Limit)
+        if err != nil </span><span class="cov0" title="0">{
+                return resp, err
+        }</span>
+
+        <span class="cov8" title="1">for rows.Next() </span><span class="cov8" title="1">{
+                var (
+                        user                      models.UserList
+                        nickName, photo, birthday sql.NullString
+                )
+
+                err := rows.Scan(
+                        &amp;user.FullName,
+                        &amp;nickName,
+                        &amp;photo,
+                        &amp;birthday,
+                        &amp;user.Location.Latitude,
+                        &amp;user.Location.Longitude,
+                        &amp;user.CreatedAt,
+                        &amp;user.UpdatedAt,
+                )
+
+                if err != nil </span><span class="cov0" title="0">{
+                        return resp, err
+                }</span>
+
+                <span class="cov8" title="1">user.NickName = pkg.NullStringToString(nickName)
+                user.Photo = pkg.NullStringToString(photo)
+                user.Birthday = pkg.NullStringToString(birthday)
+
+                resp.Users = append(resp.Users, user)</span>
+        }
+
+        <span class="cov8" title="1">defer rows.Close()
+
+        row := u.db.QueryRow(ctx, `SELECT COUNT(*) FROM users WHERE deleted_at IS NULL;`)
+
+        err = row.Scan(&amp;resp.Count)
+        if err != nil </span><span class="cov0" title="0">{
+                return resp, err
+        }</span>
+        <span class="cov8" title="1">return resp, nil</span>
+}</pre>
+		
+		</div>
+	</body>
+	<script>
+	(function() {
+		var files = document.getElementById('files');
+		var visible;
+		files.addEventListener('change', onChange, false);
+		function select(part) {
+			if (visible)
+				visible.style.display = 'none';
+			visible = document.getElementById(part);
+			if (!visible)
+				return;
+			files.value = part;
+			visible.style.display = 'block';
+			location.hash = part;
+		}
+		function onChange() {
+			select(files.value);
+			window.scrollTo(0, 0);
+		}
+		if (location.hash != "") {
+			select(location.hash.substr(1));
+		}
+		if (!visible) {
+			select("file0");
+		}
+	})();
+	</script>
+</html>

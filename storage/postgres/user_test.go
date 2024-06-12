@@ -94,7 +94,7 @@ func TestUpdate(t *testing.T) {
 	userRepo := NewUser(db)
 
 	reqUser := models.UpdateUser{
-		Id:         20,
+		Id:         48,
 		FullName:  faker.Name(),
 		NickName:   faker.Name(),
 		Photo:      faker.Word(),
@@ -185,6 +185,32 @@ func TestDelete(t *testing.T) {
 		if assert.NoError(t, err) {
 			return
 		}
+	}
+}
+
+
+func TestDeleteMany(t *testing.T) {
+	userRepo := NewUser(db)
+
+	err := userRepo.DeleteMany(context.Background(), models.DeleteUsers{
+		Users: []models.DeleteUser{
+			{
+				Id: 46,
+				DeletedBy: "me",
+			},
+			{
+				Id: 47,
+				DeletedBy: "me",
+			},
+			{
+				Id: 48,
+				DeletedBy: "me",
+			},
+		},
+	})
+
+	if assert.NoError(t, err) {
+		return
 	}
 }
 
